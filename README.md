@@ -13,6 +13,8 @@ A lightweight Windows desktop assistant that fixes selected text and learns your
 npm install
 ```
 
+**New to the project?** See **[SETUP-GUIDE.md](./SETUP-GUIDE.md)** for API keys, hotkeys, builds, Git push, and troubleshooting.
+
 ## Development
 
 ```bash
