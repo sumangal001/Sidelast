@@ -21,29 +21,37 @@ npm start
 
 ### Add your API key (required)
 
+StyleFix supports **Google Gemini (FREE)** and Anthropic.
+
+#### Free option — Google Gemini (recommended)
+
+1. Go to **[aistudio.google.com/apikey](https://aistudio.google.com/apikey)**
+2. Sign in with your Google account
+3. Click **Create API key** (no credit card needed)
+4. Copy the key (starts with `AIza...`)
+5. Run StyleFix → **right-click widget** → Settings
+6. Provider: **Google Gemini (Free)**
+7. Paste your key → **Save settings**
+
+**Option B — Environment variable**
+
+```powershell
+$env:GEMINI_API_KEY = "AIza-your-key-here"
+npm start
+```
+
+#### Paid option — Anthropic
+
+1. Go to [console.anthropic.com](https://console.anthropic.com/)
+2. Create an API key (`sk-ant-...`)
+3. In Settings, choose **Anthropic (Paid)** and paste the key
+
 **Option A — Settings UI (recommended)**
 
 1. Run the app (`npm start`)
 2. **Right-click** the blue floating widget
-3. Paste your **Anthropic API key** (`sk-ant-...`)
+3. Choose provider and paste API key
 4. Click **Save settings**
-
-**Option B — Environment variable (for development)**
-
-```powershell
-$env:ANTHROPIC_API_KEY = "sk-ant-your-key-here"
-npm start
-```
-
-Or set it permanently in Windows:
-
-1. Search **Environment Variables** in Start
-2. Under **User variables** → **New**
-3. Name: `ANTHROPIC_API_KEY`
-4. Value: your `sk-ant-...` key
-5. Restart terminal and run `npm start`
-
-> **Never commit API keys to Git.** They are stored locally only.
 
 ---
 

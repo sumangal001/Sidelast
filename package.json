@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
+    "@google/generative-ai": "^0.24.1",
     "better-sqlite3": "^12.11.1",
     "electron-store": "^8.2.0",
     "uiohook-napi": "^1.5.5"

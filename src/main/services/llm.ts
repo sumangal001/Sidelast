@@ -1,6 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { CorrectionRecord } from '../db/corrections';
-import { getApiKey, getModel } from './settings';
+import type { LlmProvider } from '../../shared/providers';
+import { getApiKey, getModel, getProvider } from './settings';
 
 const BASE_SYSTEM_PROMPT = `Fix grammar, spelling, and awkward phrasing. Preserve the author's voice and intent. Return ONLY the corrected text, nothing else. Do not add explanations, quotes, or markdown.`;
 
@@ -29,14 +31,6 @@ function normalizeLlmOutput(text: string): string {
   return result;
 }
 
-function createClient(): Anthropic | null {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    return null;
-  }
-  return new Anthropic({ apiKey });
-}
-
 function buildFixSystemPrompt(styleProfile: string): string {
   const profile = styleProfile.trim();
   if (!profile) {
@@ -58,39 +52,72 @@ function formatCorrectionExamples(records: CorrectionRecord[]): string {
     .join('\n\n');
 }
 
-export async function fixText(
-  original: string,
-  styleProfile = ''
+function missingKeyMessage(provider: LlmProvider): string {
+  if (provider === 'gemini') {
+    return 'API key not set — get a free key at aistudio.google.com';
+  }
+  return 'API key not set — add Anthropic key in Settings';
+}
+
+async function callAnthropic(
+  system: string,
+  user: string,
+  maxTokens: number
 ): Promise<FixTextResult> {
-  const client = createClient();
-  if (!client) {
-    return {
-      ok: false,
-      error: 'API key not set (use ANTHROPIC_API_KEY for now)',
-    };
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    return { ok: false, error: missingKeyMessage('anthropic') };
   }
 
-  const model = getModel();
+  const client = new Anthropic({ apiKey });
+  const response = await client.messages.create({
+    model: getModel(),
+    max_tokens: maxTokens,
+    system,
+    messages: [{ role: 'user', content: user }],
+  });
+
+  const textBlock = response.content.find((block) => block.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') {
+    return { ok: false, error: 'Empty LLM response' };
+  }
+
+  const text = normalizeLlmOutput(textBlock.text);
+  return text ? { ok: true, text } : { ok: false, error: 'Empty response' };
+}
+
+async function callGemini(
+  system: string,
+  user: string
+): Promise<FixTextResult> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    return { ok: false, error: missingKeyMessage('gemini') };
+  }
+
+  const client = new GoogleGenerativeAI(apiKey);
+  const model = client.getGenerativeModel({
+    model: getModel(),
+    systemInstruction: system,
+  });
+  const response = await model.generateContent(user);
+  const text = normalizeLlmOutput(response.response.text());
+
+  return text ? { ok: true, text } : { ok: false, error: 'Empty response' };
+}
+
+async function callLlm(
+  system: string,
+  user: string,
+  maxTokens = 4096
+): Promise<FixTextResult> {
+  const provider = getProvider();
 
   try {
-    const response = await client.messages.create({
-      model,
-      max_tokens: 4096,
-      system: buildFixSystemPrompt(styleProfile),
-      messages: [{ role: 'user', content: original }],
-    });
-
-    const textBlock = response.content.find((block) => block.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
-      return { ok: false, error: 'Empty LLM response' };
+    if (provider === 'gemini') {
+      return await callGemini(system, user);
     }
-
-    const corrected = normalizeLlmOutput(textBlock.text);
-    if (!corrected) {
-      return { ok: false, error: 'Empty correction' };
-    }
-
-    return { ok: true, text: corrected };
+    return await callAnthropic(system, user, maxTokens);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'LLM request failed';
@@ -98,21 +125,22 @@ export async function fixText(
   }
 }
 
+export async function fixText(
+  original: string,
+  styleProfile = ''
+): Promise<FixTextResult> {
+  return callLlm(buildFixSystemPrompt(styleProfile), original);
+}
+
 export async function summarizeStyleProfile(input: {
   accepted: CorrectionRecord[];
   rejected: CorrectionRecord[];
   previousProfile: string;
 }): Promise<SummarizeProfileResult> {
-  const client = createClient();
-  if (!client) {
-    return { ok: false, error: 'API key not set' };
-  }
-
   if (input.accepted.length === 0 && input.rejected.length === 0) {
     return { ok: false, error: 'No corrections to summarize' };
   }
 
-  const model = getModel();
   const sections: string[] = [
     'Here are examples of text this user wrote and how it was corrected.',
     'Identify recurring patterns: common typos, grammar habits, tone/voice preferences, phrases they overuse, and intentional style choices that should NOT be changed.',
@@ -137,29 +165,15 @@ export async function summarizeStyleProfile(input: {
     );
   }
 
-  try {
-    const response = await client.messages.create({
-      model,
-      max_tokens: 1024,
-      system:
-        'You analyze writing correction history and produce a concise personal style profile. Return only bullet points, no preamble.',
-      messages: [{ role: 'user', content: sections.join('\n\n') }],
-    });
+  const result = await callLlm(
+    'You analyze writing correction history and produce a concise personal style profile. Return only bullet points, no preamble.',
+    sections.join('\n\n'),
+    1024
+  );
 
-    const textBlock = response.content.find((block) => block.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
-      return { ok: false, error: 'Empty profile response' };
-    }
-
-    const profile = normalizeLlmOutput(textBlock.text);
-    if (!profile) {
-      return { ok: false, error: 'Empty profile' };
-    }
-
-    return { ok: true, profile };
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Profile summarization failed';
-    return { ok: false, error: message };
+  if (!result.ok) {
+    return result;
   }
+
+  return { ok: true, profile: result.text };
 }

@@ -1,6 +1,8 @@
 const HOTKEY_KEYS = ['F', 'G', 'R', 'E', 'X', 'C', 'V', 'Q', 'Z'];
 
 const form = document.getElementById('settings-form');
+const providerSelect = document.getElementById('provider');
+const apiKeyLabel = document.getElementById('api-key-label');
 const apiKeyInput = document.getElementById('api-key');
 const removeApiKeyInput = document.getElementById('remove-api-key');
 const apiKeyHint = document.getElementById('api-key-hint');
@@ -17,6 +19,20 @@ const dbPathInput = document.getElementById('db-path');
 const settingsPathInput = document.getElementById('settings-path');
 const clearDataButton = document.getElementById('clear-data');
 const statusEl = document.getElementById('status');
+
+const PROVIDER_DEFAULTS = {
+  gemini: { model: 'gemini-2.0-flash', placeholder: 'AIza...', label: 'Google Gemini API key' },
+  anthropic: { model: 'claude-3-5-haiku-latest', placeholder: 'sk-ant-...', label: 'Anthropic API key' },
+};
+
+function updateProviderUi(provider) {
+  const config = PROVIDER_DEFAULTS[provider] ?? PROVIDER_DEFAULTS.gemini;
+  if (apiKeyLabel) apiKeyLabel.textContent = config.label;
+  if (apiKeyInput) apiKeyInput.placeholder = config.placeholder;
+  if (modelInput && !modelInput.value.trim()) {
+    modelInput.placeholder = config.model;
+  }
+}
 
 function setStatus(message, isError = false) {
   if (!statusEl) return;
@@ -48,6 +64,8 @@ function populateHotkeyOptions(selectedKey) {
 }
 
 function applySnapshot(snapshot) {
+  if (providerSelect) providerSelect.value = snapshot.provider;
+  updateProviderUi(snapshot.provider);
   if (modelInput) modelInput.value = snapshot.model;
   if (autoLearnInput) autoLearnInput.checked = snapshot.autoLearn;
   if (launchAtLoginInput) launchAtLoginInput.checked = snapshot.launchAtLogin;
@@ -97,6 +115,7 @@ async function saveSettings(event) {
   const payload = {
     apiKey: apiKeyInput?.value?.trim() || undefined,
     removeApiKey: removeApiKeyInput?.checked ?? false,
+    provider: providerSelect?.value ?? 'gemini',
     model: modelInput?.value?.trim(),
     autoLearn: autoLearnInput?.checked ?? true,
     launchAtLogin: launchAtLoginInput?.checked ?? false,
@@ -142,6 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
   hotkeyKeySelect?.addEventListener('change', updateHotkeyPreview);
   hotkeyShiftInput?.addEventListener('change', updateHotkeyPreview);
   hotkeyAltInput?.addEventListener('change', updateHotkeyPreview);
+
+  providerSelect?.addEventListener('change', () => {
+    updateProviderUi(providerSelect.value);
+  });
 
   clearDataButton?.addEventListener('click', () => {
     void clearLearnedData();

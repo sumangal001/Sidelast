@@ -17,8 +17,15 @@
         <section class="settings__section">
           <h2>API</h2>
           <label class="field">
-            <span>Anthropic API key</span>
-            <input id="api-key" type="password" placeholder="sk-ant-..." autocomplete="off" />
+            <span>Provider</span>
+            <select id="provider">
+              <option value="gemini">Google Gemini (Free)</option>
+              <option value="anthropic">Anthropic (Paid)</option>
+            </select>
+          </label>
+          <label class="field">
+            <span id="api-key-label">API key</span>
+            <input id="api-key" type="password" placeholder="AIza..." autocomplete="off" />
             <small id="api-key-hint" class="hint"></small>
           </label>
           <label class="field field--checkbox">
@@ -27,8 +34,12 @@
           </label>
           <label class="field">
             <span>Model</span>
-            <input id="model" type="text" placeholder="claude-3-5-haiku-latest" />
+            <input id="model" type="text" placeholder="gemini-2.0-flash" />
           </label>
+          <p class="hint">
+            Free Gemini key:
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com/apikey</a>
+          </p>
         </section>
 
         <section class="settings__section">

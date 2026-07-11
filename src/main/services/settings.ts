@@ -1,18 +1,19 @@
 import Store from 'electron-store';
 import {
-  DEFAULT_HOTKEY,
   DEFAULT_HOTKEY_KEY,
   DEFAULT_HOTKEY_MODIFIERS,
   buildHotkeyConfig,
 } from '../../shared/hotkey-config';
 import type { HotkeyConfig, HotkeyKeyOption, HotkeyModifiers } from '../../shared/hotkey-keys';
+import {
+  DEFAULT_MODELS,
+  type LlmProvider,
+} from '../../shared/providers';
 import type { SettingsSavePayload, SettingsSnapshot } from '../../shared/settings-types';
 import { getCorrectionCount } from '../db/corrections';
 import { getDatabasePath } from '../db/database';
 import { getStyleProfileContent, updateProfileContent } from '../db/profile';
 import { applyLaunchAtLogin, readLaunchAtLogin } from './launch-at-login';
-
-export type LlmProvider = 'anthropic';
 
 type StoredSettings = {
   apiKey: string;
@@ -30,8 +31,8 @@ const store = new Store<StoredSettings>({
   name: 'stylefix-settings',
   defaults: {
     apiKey: '',
-    provider: 'anthropic',
-    model: 'claude-3-5-haiku-latest',
+    provider: 'gemini',
+    model: DEFAULT_MODELS.gemini,
     autoLearn: true,
     launchAtLogin: false,
     hotkeyKey: DEFAULT_HOTKEY_KEY,
@@ -40,6 +41,27 @@ const store = new Store<StoredSettings>({
     hotkeyAlt: DEFAULT_HOTKEY_MODIFIERS.alt,
   },
 });
+
+function getEnvApiKey(provider: LlmProvider): string {
+  if (provider === 'gemini') {
+    return (
+      process.env.GEMINI_API_KEY?.trim() ||
+      process.env.GOOGLE_API_KEY?.trim() ||
+      process.env.STYLEFIX_API_KEY?.trim() ||
+      ''
+    );
+  }
+
+  return (
+    process.env.ANTHROPIC_API_KEY?.trim() ||
+    process.env.STYLEFIX_API_KEY?.trim() ||
+    ''
+  );
+}
+
+export function getProvider(): LlmProvider {
+  return store.get('provider');
+}
 
 export function getHotkeyConfig(): HotkeyConfig {
   return buildHotkeyConfig(getHotkeyModifiers(), store.get('hotkeyKey'));
@@ -54,15 +76,14 @@ function getHotkeyModifiers(): HotkeyModifiers {
 }
 
 export function getSettingsSnapshot(): SettingsSnapshot {
+  const provider = getProvider();
   const storedKey = store.get('apiKey').trim();
-  const envKey = !!(
-    process.env.ANTHROPIC_API_KEY?.trim() || process.env.STYLEFIX_API_KEY?.trim()
-  );
+  const envKey = getEnvApiKey(provider);
 
   return {
     hasApiKey: !!(storedKey || envKey),
-    apiKeyFromEnv: !storedKey && envKey,
-    provider: 'anthropic',
+    apiKeyFromEnv: !storedKey && !!envKey,
+    provider,
     model: store.get('model'),
     autoLearn: store.get('autoLearn'),
     launchAtLogin: readLaunchAtLogin(),
@@ -83,8 +104,17 @@ export function saveSettings(payload: SettingsSavePayload): SettingsSnapshot {
     store.set('apiKey', payload.apiKey.trim());
   }
 
+  if (payload.provider !== undefined) {
+    const provider = payload.provider;
+    store.set('provider', provider);
+    if (payload.model === undefined) {
+      store.set('model', DEFAULT_MODELS[provider]);
+    }
+  }
+
   if (payload.model !== undefined) {
-    store.set('model', payload.model.trim() || 'claude-3-5-haiku-latest');
+    const provider: LlmProvider = payload.provider ?? getProvider();
+    store.set('model', payload.model.trim() || DEFAULT_MODELS[provider]);
   }
 
   if (payload.autoLearn !== undefined) {
@@ -120,11 +150,7 @@ export function getApiKey(): string {
     return stored;
   }
 
-  return (
-    process.env.ANTHROPIC_API_KEY?.trim() ||
-    process.env.STYLEFIX_API_KEY?.trim() ||
-    ''
-  );
+  return getEnvApiKey(getProvider());
 }
 
 export function getAutoLearn(): boolean {
