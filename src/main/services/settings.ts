@@ -6,6 +6,7 @@ export type AppSettings = {
   apiKey: string;
   provider: LlmProvider;
   model: string;
+  autoLearn: boolean;
 };
 
 const store = new Store<AppSettings>({
@@ -14,6 +15,7 @@ const store = new Store<AppSettings>({
     apiKey: '',
     provider: 'anthropic',
     model: 'claude-3-5-haiku-latest',
+    autoLearn: true,
   },
 });
 
@@ -22,6 +24,7 @@ export function getSettings(): AppSettings {
     apiKey: getApiKey(),
     provider: store.get('provider'),
     model: store.get('model'),
+    autoLearn: store.get('autoLearn'),
   };
 }
 
@@ -40,6 +43,14 @@ export function getApiKey(): string {
 
 export function setApiKey(apiKey: string): void {
   store.set('apiKey', apiKey.trim());
+}
+
+export function getAutoLearn(): boolean {
+  return store.get('autoLearn');
+}
+
+export function setAutoLearn(enabled: boolean): void {
+  store.set('autoLearn', enabled);
 }
 
 export function getSettingsPath(): string {

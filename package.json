@@ -12,7 +12,7 @@
     "dev": "concurrently -k \"npm run watch\" \"wait-on dist/main/index.js && electron .\"",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder",
-    "rebuild": "electron-rebuild -f -w uiohook-napi",
+    "rebuild": "electron-rebuild -f -w uiohook-napi,better-sqlite3",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^4.2.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.10.0",
     "concurrently": "^9.1.0",
     "electron": "^33.2.0",
@@ -46,6 +47,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
+    "better-sqlite3": "^12.11.1",
     "electron-store": "^8.2.0",
     "uiohook-napi": "^1.5.5"
   }

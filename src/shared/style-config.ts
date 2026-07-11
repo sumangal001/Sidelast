@@ -1,0 +1,3 @@
+export const PROFILE_SUMMARIZE_EVERY = 12;
+export const PROFILE_CORRECTION_SAMPLE_SIZE = 25;
+export const UNDO_WATCH_MS = 4000;

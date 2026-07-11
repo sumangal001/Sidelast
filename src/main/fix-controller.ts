@@ -1,7 +1,10 @@
+import { logCorrection } from './db/corrections';
 import { sendWidgetState } from './widget-manager';
 import { applyFixedText } from './services/apply-correction';
 import { fixText } from './services/llm';
 import { captureSelectedText } from './services/selection-capture';
+import { getCurrentStyleProfile, onCorrectionLogged } from './services/style-profile';
+import { watchForUndo } from './services/undo-watcher';
 
 let fixInProgress = false;
 let lastCapturedText: string | null = null;
@@ -45,7 +48,8 @@ export async function runFixSession(): Promise<void> {
     lastCapturedText = capture.text;
 
     sendWidgetState('fixing', 'Fixing…');
-    const correction = await fixText(capture.text);
+    const styleProfile = getCurrentStyleProfile();
+    const correction = await fixText(capture.text, styleProfile);
     if (!correction.ok) {
       sendWidgetState('error', truncateError(correction.error));
       await delay(2500);
@@ -55,6 +59,12 @@ export async function runFixSession(): Promise<void> {
     lastCorrectedText = correction.text;
 
     await applyFixedText(correction.text);
+
+    const record = logCorrection(capture.text, correction.text);
+    console.log(`[db] Logged correction #${record.id}: ${record.diff_summary}`);
+
+    watchForUndo(record.id);
+    onCorrectionLogged(record.id);
 
     sendWidgetState('fixed', 'Fixed');
     await delay(1200);

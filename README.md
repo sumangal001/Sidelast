@@ -41,8 +41,8 @@ This project is built incrementally:
 2. ✅ Floating draggable always-on-top widget with states (click widget to test placeholder fix)
 3. ✅ Global hotkey (`Ctrl+Shift+F`) + copy selection to clipboard
 4. ✅ LLM text fix + paste back
-5. SQLite correction storage
-6. Style profile learning
+5. ✅ SQLite correction storage
+6. ✅ Style profile learning
 7. Settings window
 8. Auto-launch + packaging
 
@@ -81,6 +81,45 @@ npm start
 3. The widget shows Fixing…, then **Fixed** — selected text should be replaced with the correction
 
 Uses Claude (`claude-3-5-haiku-latest` by default) with a plain grammar-fix prompt. Style memory is added in step 6.
+
+## Step 5: Correction history (SQLite)
+
+Every successful fix is logged locally as a before/after pair in:
+
+```
+%APPDATA%/stylefix/stylefix.db   (Electron userData)
+```
+
+Table: `corrections(id, original_text, corrected_text, diff_summary, timestamp)`
+
+After a fix, the terminal logs e.g. `[db] Logged correction #3: Length +2 chars; wording revised`.
+
+Inspect with any SQLite client, or:
+
+```powershell
+npm start
+# after a few fixes, check the Electron userData path printed at startup: [db] SQLite ready at ...
+```
+
+## Step 6: Style memory
+
+After every **12** successful corrections, StyleFix runs a background LLM pass on your recent before/after pairs and stores a concise **style profile** in SQLite (`profile` table). That profile is injected into every future fix prompt.
+
+**Undo = negative signal:** If you press **Ctrl+Z** within 4 seconds after a fix, that correction is marked `rejected = 1` and included in the next profile update as something to avoid.
+
+Auto-learning is on by default (`autoLearn: true` in settings store). A toggle UI comes in step 7.
+
+Check the profile:
+
+```sql
+SELECT content, updated_at, last_correction_id FROM profile WHERE id = 1;
+```
+
+Terminal logs when the profile updates:
+
+```
+[style] Updated profile from 10 accepted / 2 rejected corrections
+```
 
 ## License
 
