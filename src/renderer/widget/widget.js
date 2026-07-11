@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     icon.textContent = meta.icon;
     label.textContent = message ?? meta.label;
     label.hidden = !meta.expanded;
-    widget.title = state === 'idle' ? 'Click to test fix' : meta.label;
+    widget.title = state === 'idle' ? 'Ctrl+Shift+F to fix (or click)' : meta.label;
   }
 
   if (window.stylefix?.onStateChange) {
