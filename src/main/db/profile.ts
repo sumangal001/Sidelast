@@ -54,3 +54,8 @@ export function saveProfile(content: string, lastCorrectionId: number): void {
 export function clearProfile(): void {
   saveProfile('', 0);
 }
+
+export function updateProfileContent(content: string): void {
+  const profile = getProfile();
+  saveProfile(content, profile.last_correction_id);
+}

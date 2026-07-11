@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC, type WidgetStatePayload } from '../shared/ipc';
+import type { SettingsSavePayload, SettingsSnapshot } from '../shared/settings-types';
 
 contextBridge.exposeInMainWorld('stylefix', {
   version: '0.1.0',
@@ -14,4 +15,21 @@ contextBridge.exposeInMainWorld('stylefix', {
     ipcRenderer.on(IPC.WIDGET_STATE, handler);
     return () => ipcRenderer.removeListener(IPC.WIDGET_STATE, handler);
   },
+
+  openSettings: (): void => {
+    ipcRenderer.send(IPC.SETTINGS_OPEN);
+  },
+
+  getSettings: (): Promise<SettingsSnapshot> =>
+    ipcRenderer.invoke(IPC.SETTINGS_GET),
+
+  saveSettings: (
+    payload: SettingsSavePayload
+  ): Promise<
+    | { ok: true; snapshot: SettingsSnapshot }
+    | { ok: false; error: string }
+  > => ipcRenderer.invoke(IPC.SETTINGS_SAVE, payload),
+
+  clearLearnedData: (): Promise<SettingsSnapshot> =>
+    ipcRenderer.invoke(IPC.SETTINGS_CLEAR_DATA),
 });

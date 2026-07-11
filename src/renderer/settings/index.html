@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StyleFix Settings</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="settings">
+      <header class="settings__header">
+        <h1>StyleFix Settings</h1>
+        <p class="settings__subtitle">Local-first text fixing with style memory</p>
+      </header>
+
+      <form id="settings-form" class="settings__form">
+        <section class="settings__section">
+          <h2>API</h2>
+          <label class="field">
+            <span>Anthropic API key</span>
+            <input id="api-key" type="password" placeholder="sk-ant-..." autocomplete="off" />
+            <small id="api-key-hint" class="hint"></small>
+          </label>
+          <label class="field field--checkbox">
+            <input id="remove-api-key" type="checkbox" />
+            <span>Remove saved API key</span>
+          </label>
+          <label class="field">
+            <span>Model</span>
+            <input id="model" type="text" placeholder="claude-3-5-haiku-latest" />
+          </label>
+        </section>
+
+        <section class="settings__section">
+          <h2>Hotkey</h2>
+          <div class="field-row">
+            <label class="field">
+              <span>Key</span>
+              <select id="hotkey-key"></select>
+            </label>
+            <div class="modifiers">
+              <label class="field field--checkbox">
+                <input id="hotkey-ctrl" type="checkbox" checked disabled />
+                <span>Ctrl</span>
+              </label>
+              <label class="field field--checkbox">
+                <input id="hotkey-shift" type="checkbox" checked />
+                <span>Shift</span>
+              </label>
+              <label class="field field--checkbox">
+                <input id="hotkey-alt" type="checkbox" />
+                <span>Alt</span>
+              </label>
+            </div>
+          </div>
+          <p id="hotkey-preview" class="hint">Shortcut: Ctrl+Shift+F</p>
+        </section>
+
+        <section class="settings__section">
+          <h2>Style memory</h2>
+          <label class="field field--checkbox">
+            <input id="auto-learn" type="checkbox" checked />
+            <span>Auto-learn from corrections</span>
+          </label>
+          <label class="field">
+            <span>Learned style profile</span>
+            <textarea
+              id="style-profile"
+              rows="8"
+              placeholder="Profile builds automatically after several corrections..."
+            ></textarea>
+          </label>
+          <p id="correction-count" class="hint">0 corrections stored</p>
+        </section>
+
+        <section class="settings__section">
+          <h2>Startup</h2>
+          <label class="field field--checkbox">
+            <input id="launch-at-login" type="checkbox" />
+            <span>Launch StyleFix at Windows login</span>
+          </label>
+        </section>
+
+        <section class="settings__section">
+          <h2>Local data</h2>
+          <label class="field">
+            <span>SQLite database</span>
+            <input id="db-path" type="text" readonly />
+          </label>
+          <label class="field">
+            <span>Settings file</span>
+            <input id="settings-path" type="text" readonly />
+          </label>
+          <button id="clear-data" type="button" class="button button--danger">
+            Clear all learned data
+          </button>
+        </section>
+
+        <footer class="settings__footer">
+          <p id="status" class="status" aria-live="polite"></p>
+          <button type="submit" class="button button--primary">Save settings</button>
+        </footer>
+      </form>
+    </main>
+    <script src="settings.js"></script>
+  </body>
+</html>

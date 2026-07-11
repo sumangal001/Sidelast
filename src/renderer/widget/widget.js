@@ -60,6 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dragged = false;
   });
 
+  widget.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    window.stylefix?.openSettings?.();
+  });
+
   widget.addEventListener('pointercancel', () => {
     pointerDown = false;
     dragged = false;

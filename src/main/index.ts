@@ -3,9 +3,20 @@ import { closeDatabase, initDatabase } from './db/database';
 import { ensureProfileRow } from './db/profile';
 import { IPC } from '../shared/ipc';
 import { runFixSession, isFixInProgress } from './fix-controller';
-import { startHotkeyListener, stopHotkeyListener } from './services/hotkey';
+import {
+  shutdownInputHook,
+  startHotkeyListener,
+} from './services/hotkey';
+import { syncLaunchAtLoginFromStore } from './services/settings';
+import { registerSettingsHandlers } from './settings-handlers';
 import { stopUndoWatch } from './services/undo-watcher';
 import { createWidgetWindow } from './widget-manager';
+
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+
+if (!gotSingleInstanceLock) {
+  app.quit();
+}
 
 function registerIpcHandlers(): void {
   ipcMain.handle(IPC.WIDGET_TRIGGER_FIX, async () => {
@@ -20,7 +31,9 @@ function registerIpcHandlers(): void {
 app.whenReady().then(() => {
   initDatabase();
   ensureProfileRow();
+  syncLaunchAtLoginFromStore();
   registerIpcHandlers();
+  registerSettingsHandlers();
   createWidgetWindow();
   startHotkeyListener(() => {
     void runFixSession();
@@ -35,7 +48,7 @@ app.whenReady().then(() => {
 
 app.on('will-quit', () => {
   stopUndoWatch();
-  stopHotkeyListener();
+  shutdownInputHook();
   closeDatabase();
 });
 

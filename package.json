@@ -1,6 +1,6 @@
 {
   "name": "stylefix",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Floating Windows desktop assistant that fixes selected text and learns your writing style",
   "main": "dist/main/index.js",
   "author": "",
@@ -23,16 +23,27 @@
     },
     "files": [
       "dist/**/*",
-      "src/renderer/**/*"
+      "src/renderer/**/*",
+      "package.json"
     ],
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "StyleFix"
     }
   },
   "devDependencies": {

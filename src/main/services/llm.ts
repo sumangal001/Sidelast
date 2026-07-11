@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { CorrectionRecord } from '../db/corrections';
-import { getApiKey, getSettings } from './settings';
+import { getApiKey, getModel } from './settings';
 
 const BASE_SYSTEM_PROMPT = `Fix grammar, spelling, and awkward phrasing. Preserve the author's voice and intent. Return ONLY the corrected text, nothing else. Do not add explanations, quotes, or markdown.`;
 
@@ -70,7 +70,7 @@ export async function fixText(
     };
   }
 
-  const { model } = getSettings();
+  const model = getModel();
 
   try {
     const response = await client.messages.create({
@@ -112,7 +112,7 @@ export async function summarizeStyleProfile(input: {
     return { ok: false, error: 'No corrections to summarize' };
   }
 
-  const { model } = getSettings();
+  const model = getModel();
   const sections: string[] = [
     'Here are examples of text this user wrote and how it was corrected.',
     'Identify recurring patterns: common typos, grammar habits, tone/voice preferences, phrases they overuse, and intentional style choices that should NOT be changed.',

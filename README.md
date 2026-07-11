@@ -43,8 +43,24 @@ This project is built incrementally:
 4. ✅ LLM text fix + paste back
 5. ✅ SQLite correction storage
 6. ✅ Style profile learning
-7. Settings window
-8. Auto-launch + packaging
+7. ✅ Settings window
+8. ✅ Auto-launch + packaging
+
+## Quick start
+
+1. `npm install`
+2. Right-click widget → **Settings** → paste Anthropic API key → Save
+3. Select text anywhere → **Ctrl+Shift+F**
+
+## Package for Windows
+
+```bash
+npm run dist
+```
+
+Installer output: `release/StyleFix Setup 1.0.0.exe`
+
+Unpacked build (for testing): `npm run pack` → `release/win-unpacked/StyleFix.exe`
 
 ## Step 3: Hotkey + selection capture
 
@@ -120,6 +136,39 @@ Terminal logs when the profile updates:
 ```
 [style] Updated profile from 10 accepted / 2 rejected corrections
 ```
+
+## Step 7: Settings window
+
+**Right-click** the floating widget to open settings.
+
+- Anthropic API key (stored locally in `electron-store`)
+- Model name
+- Hotkey customization (Ctrl + Shift/Alt + key)
+- Auto-learn toggle
+- Editable style profile viewer
+- Local data paths (SQLite + settings file)
+- **Clear all learned data** button
+- **Launch at Windows login** toggle
+
+## Step 8: Auto-launch + installer
+
+In settings, enable **Launch StyleFix at Windows login** to register a startup entry via `app.setLoginItemSettings`.
+
+Build the Windows installer:
+
+```bash
+# Close any running StyleFix/Electron instances first
+npm run dist
+```
+
+Output: `release/StyleFix Setup 1.0.0.exe`
+
+Unpacked app (no installer): `npm run pack` → `release/win-unpacked/StyleFix.exe`
+
+**Packaging notes:**
+- If `dist` fails with "file is being used by another process", close StyleFix and delete the `release` folder, then retry.
+- Native module rebuild may fail if the project path contains spaces (`c:\side last`). Move to e.g. `C:\dev\stylefix` for a full rebuild, or use `npm run pack` (works with `npmRebuild: false`).
+- For hotkey support in production, install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with Windows SDK, then run `npm run rebuild` before packaging.
 
 ## License
 
