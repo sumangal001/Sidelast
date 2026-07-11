@@ -1,0 +1,98 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  cursor: grab;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-radius 0.2s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.widget--compact {
+  border-radius: 50%;
+  padding: 0;
+}
+
+.widget--expanded {
+  border-radius: 30px;
+  justify-content: flex-start;
+}
+
+.widget:active {
+  cursor: grabbing;
+}
+
+.widget__icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.widget__label {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.widget--idle {
+  background: rgba(59, 130, 246, 0.92);
+  color: #fff;
+}
+
+.widget--listening {
+  background: rgba(168, 85, 247, 0.92);
+  color: #fff;
+}
+
+.widget--fixing {
+  background: rgba(234, 179, 8, 0.92);
+  color: #fff;
+}
+
+.widget--fixing .widget__icon {
+  animation: pulse 0.9s ease-in-out infinite;
+}
+
+.widget--fixed {
+  background: rgba(34, 197, 94, 0.92);
+  color: #fff;
+}
+
+.widget--error {
+  background: rgba(239, 68, 68, 0.92);
+  color: #fff;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}

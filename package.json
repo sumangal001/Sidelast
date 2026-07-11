@@ -1,0 +1,43 @@
+{
+  "name": "stylefix",
+  "version": "0.1.0",
+  "description": "Floating Windows desktop assistant that fixes selected text and learns your writing style",
+  "main": "dist/main/index.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "start": "npm run build && electron .",
+    "dev": "concurrently -k \"npm run watch\" \"wait-on dist/main/index.js && electron .\"",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.stylefix.app",
+    "productName": "StyleFix",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "src/renderer/**/*"
+    ],
+    "win": {
+      "target": ["nsis"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "concurrently": "^9.1.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.7.2",
+    "wait-on": "^8.0.1"
+  },
+  "dependencies": {}
+}
