@@ -8,6 +8,14 @@ contextBridge.exposeInMainWorld('stylefix', {
   triggerFix: (): Promise<{ ok: boolean; reason?: string }> =>
     ipcRenderer.invoke(IPC.WIDGET_TRIGGER_FIX),
 
+  fixManual: (
+    text: string
+  ): Promise<{ ok: true; text: string } | { ok: false; error: string }> =>
+    ipcRenderer.invoke(IPC.WIDGET_FIX_MANUAL, text),
+
+  pasteResult: (text: string): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke(IPC.WIDGET_PASTE_RESULT, text),
+
   onStateChange: (callback: (payload: WidgetStatePayload) => void): (() => void) => {
     const handler = (_event: Electron.IpcRendererEvent, payload: WidgetStatePayload) => {
       callback(payload);
@@ -18,6 +26,10 @@ contextBridge.exposeInMainWorld('stylefix', {
 
   openSettings: (): void => {
     ipcRenderer.send(IPC.SETTINGS_OPEN);
+  },
+
+  openComposer: (): void => {
+    ipcRenderer.send(IPC.COMPOSER_OPEN);
   },
 
   getSettings: (): Promise<SettingsSnapshot> =>

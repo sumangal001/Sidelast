@@ -1,12 +1,13 @@
 const STATE_META = {
-  idle: { label: 'Ready', icon: '✎', expanded: false },
-  listening: { label: 'Listening', icon: '◎', expanded: true },
+  idle: { label: '', icon: '✎', expanded: false },
+  listening: { label: 'Copying…', icon: '◎', expanded: true },
   fixing: { label: 'Fixing…', icon: '⋯', expanded: true },
   fixed: { label: 'Fixed', icon: '✓', expanded: true },
   error: { label: 'Error', icon: '!', expanded: true },
 };
 
-const DRAG_THRESHOLD_PX = 6;
+const DRAG_THRESHOLD_PX = 8;
+const DOUBLE_CLICK_MS = 400;
 
 document.addEventListener('DOMContentLoaded', () => {
   const widget = document.getElementById('widget');
@@ -18,14 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let startX = 0;
   let startY = 0;
   let dragged = false;
+  let lastClickAt = 0;
 
   function applyState(state, message) {
     const meta = STATE_META[state] ?? STATE_META.idle;
-    widget.className = `widget widget--${state} ${meta.expanded ? 'widget--expanded' : 'widget--compact'}`;
+    const text = message ?? meta.label;
+    widget.className = `widget widget--${state} ${meta.expanded && text ? 'widget--expanded' : ''}`;
     icon.textContent = meta.icon;
-    label.textContent = message ?? meta.label;
-    label.hidden = !meta.expanded;
-    widget.title = state === 'idle' ? 'Ctrl+Shift+F to fix (or click)' : meta.label;
+    label.textContent = text;
+    label.hidden = !meta.expanded || !text;
+    widget.title =
+      'Drag anywhere · Click = fix selection · Double-click = type text · Right-click = settings';
   }
 
   if (window.stylefix?.onStateChange) {
@@ -53,9 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   widget.addEventListener('pointerup', () => {
-    if (pointerDown && !dragged && window.stylefix?.triggerFix) {
-      void window.stylefix.triggerFix();
+    if (pointerDown && !dragged) {
+      const now = Date.now();
+      const isDoubleClick = now - lastClickAt < DOUBLE_CLICK_MS;
+      lastClickAt = now;
+
+      if (isDoubleClick) {
+        window.stylefix?.openComposer?.();
+      } else if (window.stylefix?.triggerFix) {
+        void window.stylefix.triggerFix();
+      }
     }
+
     pointerDown = false;
     dragged = false;
   });

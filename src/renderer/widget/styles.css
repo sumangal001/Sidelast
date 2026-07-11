@@ -12,6 +12,7 @@ body {
   background: transparent;
   -webkit-app-region: drag;
   user-select: none;
+  font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 .widget {
@@ -21,19 +22,15 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0 14px;
+  padding: 0 12px;
   cursor: grab;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-radius 0.2s ease;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-}
-
-.widget--compact {
   border-radius: 50%;
-  padding: 0;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.28);
+  transition: background-color 0.2s ease;
 }
 
 .widget--expanded {
-  border-radius: 30px;
+  border-radius: 32px;
   justify-content: flex-start;
 }
 
@@ -42,32 +39,30 @@ body {
 }
 
 .widget__icon {
-  font-size: 20px;
+  font-size: 26px;
   line-height: 1;
-  flex-shrink: 0;
   pointer-events: none;
 }
 
 .widget__label {
-  font-family: 'Segoe UI', system-ui, sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
 }
 
 .widget--idle {
-  background: rgba(59, 130, 246, 0.92);
+  background: rgba(59, 130, 246, 0.95);
   color: #fff;
 }
 
 .widget--listening {
-  background: rgba(168, 85, 247, 0.92);
+  background: rgba(168, 85, 247, 0.95);
   color: #fff;
 }
 
 .widget--fixing {
-  background: rgba(234, 179, 8, 0.92);
+  background: rgba(234, 179, 8, 0.95);
   color: #fff;
 }
 
@@ -76,12 +71,12 @@ body {
 }
 
 .widget--fixed {
-  background: rgba(34, 197, 94, 0.92);
+  background: rgba(34, 197, 94, 0.95);
   color: #fff;
 }
 
 .widget--error {
-  background: rgba(239, 68, 68, 0.92);
+  background: rgba(239, 68, 68, 0.95);
   color: #fff;
 }
 
@@ -92,7 +87,7 @@ body {
     transform: scale(1);
   }
   50% {
-    opacity: 0.5;
-    transform: scale(0.85);
+    opacity: 0.55;
+    transform: scale(0.88);
   }
 }

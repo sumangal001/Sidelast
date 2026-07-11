@@ -21,8 +21,21 @@ const clearDataButton = document.getElementById('clear-data');
 const statusEl = document.getElementById('status');
 
 const PROVIDER_DEFAULTS = {
-  gemini: { model: 'gemini-2.0-flash', placeholder: 'AIza...', label: 'Google Gemini API key' },
-  anthropic: { model: 'claude-3-5-haiku-latest', placeholder: 'sk-ant-...', label: 'Anthropic API key' },
+  groq: {
+    model: 'llama-3.3-70b-versatile',
+    placeholder: 'gsk_...',
+    label: 'Groq API key (free)',
+  },
+  gemini: {
+    model: 'gemini-2.0-flash',
+    placeholder: 'AIza... or AQ....',
+    label: 'Google Gemini API key',
+  },
+  anthropic: {
+    model: 'claude-3-5-haiku-latest',
+    placeholder: 'sk-ant-...',
+    label: 'Anthropic API key',
+  },
 };
 
 function updateProviderUi(provider) {
@@ -115,7 +128,7 @@ async function saveSettings(event) {
   const payload = {
     apiKey: apiKeyInput?.value?.trim() || undefined,
     removeApiKey: removeApiKeyInput?.checked ?? false,
-    provider: providerSelect?.value ?? 'gemini',
+    provider: providerSelect?.value ?? 'groq',
     model: modelInput?.value?.trim(),
     autoLearn: autoLearnInput?.checked ?? true,
     launchAtLogin: launchAtLoginInput?.checked ?? false,

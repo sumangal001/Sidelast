@@ -79,8 +79,59 @@ export async function runFixSession(): Promise<void> {
 }
 
 function truncateError(message: string): string {
-  if (message.length <= 28) {
+  if (message.length <= 80) {
     return message;
   }
-  return `${message.slice(0, 28)}…`;
+  return `${message.slice(0, 80)}…`;
+}
+
+export async function runManualFix(
+  text: string
+): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
+  if (fixInProgress) {
+    return { ok: false, error: 'Busy — wait for current fix' };
+  }
+
+  if (!text.trim()) {
+    return { ok: false, error: 'Type some text first' };
+  }
+
+  fixInProgress = true;
+
+  try {
+    sendWidgetState('fixing', 'Fixing…');
+    const styleProfile = getCurrentStyleProfile();
+    const correction = await fixText(text, styleProfile);
+
+    if (!correction.ok) {
+      sendWidgetState('error', truncateError(correction.error));
+      return { ok: false, error: correction.error };
+    }
+
+    lastCapturedText = text;
+    lastCorrectedText = correction.text;
+
+    const record = logCorrection(text, correction.text);
+    watchForUndo(record.id);
+    onCorrectionLogged(record.id);
+
+    sendWidgetState('fixed', 'Done — copy or paste');
+    return { ok: true, text: correction.text };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Fix failed';
+    sendWidgetState('error', truncateError(message));
+    return { ok: false, error: message };
+  } finally {
+    fixInProgress = false;
+  }
+}
+
+export async function pasteManualResult(text: string): Promise<{ ok: boolean }> {
+  if (!text.trim()) {
+    return { ok: false };
+  }
+
+  await applyFixedText(text);
+  sendWidgetState('fixed', 'Pasted');
+  return { ok: true };
 }

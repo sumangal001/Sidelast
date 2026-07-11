@@ -46,7 +46,7 @@ export function sendWidgetState(state: WidgetState, message?: string): void {
   const size = meta.expanded ? WIDGET_SIZE.expanded : WIDGET_SIZE.compact;
 
   if (widgetWindow && !widgetWindow.isDestroyed()) {
-    widgetWindow.setSize(size.width, size.height, true);
+    widgetWindow.setContentSize(size.width, size.height, true);
     const payload: WidgetStatePayload = { state, message };
     widgetWindow.webContents.send(IPC.WIDGET_STATE, payload);
   }

@@ -2,13 +2,14 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { closeDatabase, initDatabase } from './db/database';
 import { ensureProfileRow } from './db/profile';
 import { IPC } from '../shared/ipc';
-import { runFixSession, isFixInProgress } from './fix-controller';
+import { runFixSession, runManualFix, pasteManualResult, isFixInProgress } from './fix-controller';
 import {
   shutdownInputHook,
   startHotkeyListener,
 } from './services/hotkey';
 import { syncLaunchAtLoginFromStore } from './services/settings';
 import { registerSettingsHandlers } from './settings-handlers';
+import { openComposerWindow } from './composer-window';
 import { stopUndoWatch } from './services/undo-watcher';
 import { createWidgetWindow } from './widget-manager';
 
@@ -25,6 +26,18 @@ function registerIpcHandlers(): void {
     }
     void runFixSession();
     return { ok: true };
+  });
+
+  ipcMain.handle(IPC.WIDGET_FIX_MANUAL, async (_event, text: string) => {
+    return runManualFix(text);
+  });
+
+  ipcMain.handle(IPC.WIDGET_PASTE_RESULT, async (_event, text: string) => {
+    return pasteManualResult(text);
+  });
+
+  ipcMain.on(IPC.COMPOSER_OPEN, () => {
+    openComposerWindow();
   });
 }
 

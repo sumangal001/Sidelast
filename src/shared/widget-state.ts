@@ -12,6 +12,6 @@ export const WIDGET_STATE_META: Record<
 };
 
 export const WIDGET_SIZE = {
-  compact: { width: 60, height: 60 },
-  expanded: { width: 190, height: 60 },
+  compact: { width: 72, height: 72 },
+  expanded: { width: 220, height: 72 },
 } as const;

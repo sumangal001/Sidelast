@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StyleFix — Type to fix</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="composer">
+      <h1>Type to fix</h1>
+      <p class="composer__hint">Movable window — drag the title bar to move</p>
+
+      <label for="input-text">Your text</label>
+      <textarea
+        id="input-text"
+        rows="5"
+        placeholder="Type or paste anything here..."
+      ></textarea>
+
+      <button id="fix-btn" class="btn btn--primary" type="button">Fix with AI</button>
+
+      <label for="output-text">Fixed result</label>
+      <textarea id="output-text" rows="5" readonly placeholder="Fixed text appears here..."></textarea>
+
+      <div class="composer__actions">
+        <button id="copy-btn" class="btn" type="button">Copy</button>
+        <button id="paste-btn" class="btn btn--accent" type="button">Paste to app</button>
+      </div>
+
+      <p id="status" class="status"></p>
+    </main>
+    <script src="composer.js"></script>
+  </body>
+</html>

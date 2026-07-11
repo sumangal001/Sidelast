@@ -31,8 +31,8 @@ const store = new Store<StoredSettings>({
   name: 'stylefix-settings',
   defaults: {
     apiKey: '',
-    provider: 'gemini',
-    model: DEFAULT_MODELS.gemini,
+    provider: 'groq',
+    model: DEFAULT_MODELS.groq,
     autoLearn: true,
     launchAtLogin: false,
     hotkeyKey: DEFAULT_HOTKEY_KEY,
@@ -43,6 +43,14 @@ const store = new Store<StoredSettings>({
 });
 
 function getEnvApiKey(provider: LlmProvider): string {
+  if (provider === 'groq') {
+    return (
+      process.env.GROQ_API_KEY?.trim() ||
+      process.env.STYLEFIX_API_KEY?.trim() ||
+      ''
+    );
+  }
+
   if (provider === 'gemini') {
     return (
       process.env.GEMINI_API_KEY?.trim() ||
